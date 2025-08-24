@@ -123,47 +123,42 @@ export default function ReportGenerator() {
   const generateDailyReport = async () => {
     setIsGenerating(true)
 
-    // Simulate AI generation delay
-    await new Promise((resolve) => setTimeout(resolve, 2500))
+    try {
+      const response = await fetch('/api/generate-report', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          author: dailyForm.author,
+          date: dailyForm.date,
+          workContent: dailyForm.workContent,
+          template: settings.template,
+        }),
+      })
 
-    const sampleReport = `# 日報 - ${dailyForm.date}
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to generate report')
+      }
 
-## 作成者情報
-- **氏名**: ${dailyForm.author || "山田太郎"}
-- **日付**: ${dailyForm.date}
-
-## 業務内容
-${
-  dailyForm.workContent ||
-  `
-- プロジェクトAのAPI設計書作成
-- データベース設計の見直し
-- チームミーティングへの参加
-- バグ修正対応（3件）
-`
-}
-
-## 主な成果
-- API設計書の初版完成
-- データベースパフォーマンス改善案の提案
-- 重要度高のバグ修正完了
-
-## 課題・問題点
-- 外部APIの仕様変更により、一部機能の実装方針を再検討が必要
-- テスト環境でのデータ同期に時間がかかっている
-
-## 明日の予定
-- API設計書のレビュー対応
-- 新機能の実装開始
-- 顧客との要件確認ミーティング
-`
-
-    setDailyReport(sampleReport)
-    setIsGenerating(false)
-    toast({
-      title: "日報を生成しました",
-      description: "右側のプレビューエリアで確認できます。",
-    })
+      const data = await response.json()
+      setDailyReport(data.report)
+      
+      toast({
+        title: "日報を生成しました",
+        description: "右側のプレビューエリアで確認できます。",
+      })
+    } catch (error) {
+      console.error('Error generating report:', error)
+      toast({
+        title: "エラーが発生しました",
+        description: error instanceof Error ? error.message : "日報の生成に失敗しました。",
+        variant: "destructive",
+      })
+    } finally {
+      setIsGenerating(false)
+    }
   }
 
   const generateWeeklyReport = async () => {
