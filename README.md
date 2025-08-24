@@ -131,3 +131,20 @@ git init
 git add -A
 git commit -m "first commit"
 ```
+
+### 2. Serena の導入
+
+Serena はコーディングエージェントと、プロジェクトコードの仲介者として働く MCP サーバ。
+参考: https://note.com/kyutaro15/n/n61a8825fe303
+
+1. MCP の追加:
+
+```sh
+claude mcp add serena -- uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context ide-assistant --project $(pwd)
+```
+
+2. Serena のセットアップ（要：Claude Code の起動）:
+
+```sh
+/mcp__serena__initial_instructions
+```
