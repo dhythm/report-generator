@@ -262,19 +262,75 @@ export default function ReportGenerator() {
   }
 
   const renderMarkdownPreview = (content: string) => {
+    // Process markdown content into proper HTML structure
+    const lines = content.split('\n')
+    const htmlElements: string[] = []
+    let inList = false
+    let listItems: string[] = []
+    let consecutiveEmptyLines = 0
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      
+      // Handle list items
+      if (line.match(/^[-*]\s+(.*)$/)) {
+        consecutiveEmptyLines = 0
+        let listContent = line.replace(/^[-*]\s+(.*)$/, '$1')
+        // Apply markdown formatting to list items
+        listContent = listContent
+          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+          .replace(/`(.*?)`/g, '<code class="bg-muted px-1.5 py-0.5 rounded text-sm">$1</code>')
+        listItems.push(`<li>${listContent}</li>`)
+        inList = true
+        continue
+      } else if (inList && listItems.length > 0) {
+        // Close the list when we encounter a non-list item
+        htmlElements.push(`<ul class="list-disc list-inside space-y-1 my-2">${listItems.join('')}</ul>`)
+        listItems = []
+        inList = false
+      }
+      
+      // Handle empty lines - only add space for the first empty line in a sequence
+      if (line.trim() === '') {
+        consecutiveEmptyLines++
+        if (consecutiveEmptyLines === 1 && !inList) {
+          htmlElements.push('<div class="h-2"></div>')
+        }
+        continue
+      }
+      
+      // Reset empty line counter
+      consecutiveEmptyLines = 0
+      
+      // Handle headings with reduced margins
+      if (line.match(/^###\s+(.*)$/)) {
+        htmlElements.push(line.replace(/^###\s+(.*)$/, '<h3 class="text-lg font-medium mt-2 mb-1">$1</h3>'))
+      } else if (line.match(/^##\s+(.*)$/)) {
+        htmlElements.push(line.replace(/^##\s+(.*)$/, '<h2 class="text-xl font-semibold mt-3 mb-2">$1</h2>'))
+      } else if (line.match(/^#\s+(.*)$/)) {
+        htmlElements.push(line.replace(/^#\s+(.*)$/, '<h1 class="text-2xl font-bold mb-2">$1</h1>'))
+      } else {
+        // Regular paragraph
+        let processedLine = line
+          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+          .replace(/`(.*?)`/g, '<code class="bg-muted px-1.5 py-0.5 rounded text-sm">$1</code>')
+        
+        if (!inList) {
+          htmlElements.push(`<p class="leading-relaxed mb-1">${processedLine}</p>`)
+        }
+      }
+    }
+    
+    // Handle any remaining list items
+    if (inList && listItems.length > 0) {
+      htmlElements.push(`<ul class="list-disc list-inside space-y-1 my-2">${listItems.join('')}</ul>`)
+    }
+    
     return (
-      <div className="prose prose-sm max-w-none">
+      <div>
         <div
           dangerouslySetInnerHTML={{
-            __html: content
-              .replace(/^# (.*$)/gm, '<h1 class="text-2xl font-bold mb-4">$1</h1>')
-              .replace(/^## (.*$)/gm, '<h2 class="text-xl font-semibold mb-3 mt-6">$1</h2>')
-              .replace(/^### (.*$)/gm, '<h3 class="text-lg font-medium mb-2 mt-4">$1</h3>')
-              .replace(/^- (.*$)/gm, '<li class="ml-4">$1</li>')
-              .replace(/^\* (.*$)/gm, '<li class="ml-4">$1</li>')
-              .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-              .replace(/`(.*?)`/g, '<code class="bg-muted px-1 py-0.5 rounded text-sm">$1</code>')
-              .replace(/\n/g, "<br>"),
+            __html: htmlElements.join('')
           }}
         />
       </div>
@@ -426,7 +482,8 @@ export default function ReportGenerator() {
                         <Textarea
                           value={dailyReport}
                           onChange={(e) => setDailyReport(e.target.value)}
-                          className="min-h-80 font-mono text-sm bg-transparent border-none resize-none"
+                          className="min-h-80 text-sm leading-relaxed bg-transparent border-none resize-none"
+                          style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}
                         />
                       ) : (
                         <div className="min-h-80 overflow-auto">{renderMarkdownPreview(dailyReport)}</div>
@@ -616,7 +673,8 @@ export default function ReportGenerator() {
                         <Textarea
                           value={weeklyReport}
                           onChange={(e) => setWeeklyReport(e.target.value)}
-                          className="min-h-80 font-mono text-sm bg-transparent border-none resize-none"
+                          className="min-h-80 text-sm leading-relaxed bg-transparent border-none resize-none"
+                          style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}
                         />
                       ) : (
                         <div className="min-h-80 overflow-auto">{renderMarkdownPreview(weeklyReport)}</div>
