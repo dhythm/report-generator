@@ -406,7 +406,7 @@ export default function ReportGenerator() {
                         value={dailyForm.workContent}
                         onChange={(e) => setDailyForm((prev) => ({ ...prev, workContent: e.target.value }))}
                         placeholder="今日行った業務内容を記入してください..."
-                        className="min-h-32 pr-12"
+                        className="min-h-48 pr-12"
                       />
                       <Button
                         type="button"
@@ -599,7 +599,7 @@ export default function ReportGenerator() {
 ## 業務内容:
 - テスト作成
 - レビュー対応"
-                      className="min-h-32"
+                      className="min-h-48"
                     />
                   </div>
 
