@@ -148,3 +148,54 @@ claude mcp add serena -- uvx --from git+https://github.com/oraios/serena serena 
 ```sh
 /mcp__serena__initial_instructions
 ```
+
+### 3. linter/formatter の導入
+
+**プロンプト**:
+
+```
+linter/formatter を導入したいです。
+何パターンか選択肢を提示してください。
+それぞれのメリット・デメリットも紹介してください。
+```
+
+```
+⏺ どのlinter/formatterパターンを選択されますか？
+
+  1. ESLint + Prettier (最も一般的で安定)
+  2. Biome (高速でシンプル)
+  3. ESLint単体 (1ツールで完結)
+  4. oxlint + Prettier (最新・実験的)
+```
+
+ここでは 1 (ESLint + Prettier) を選択。
+
+### 4. Unit testing の導入
+
+**プロンプト**:
+
+```
+TDD を実施するため、テストフレームワークを導入したいです。
+vitest の実行環境を構築してください。
+```
+
+### 5. Claude Code Hooks の導入
+
+`.claude/settings.json` に hooks を追加する。  
+ファイルが変更された場合に、linter/formatter を実行。
+
+### 6. CLAUDE.md の作成 (Optional)
+
+```sh
+/init in japanese
+```
+
+## 機能開発
+
+Claude Code に指示を出して機能を開発する。
+
+## Claude Code 利用時の Tips
+
+1. 実装を依頼するときは「Plan mode」で計画を立てさせてから実行
+2. 作業が終わるとこまめに `/clear` でセッションをリセット
+3. 定期的に `/init` もしくは手動で `CLAUDE.md` を更新
